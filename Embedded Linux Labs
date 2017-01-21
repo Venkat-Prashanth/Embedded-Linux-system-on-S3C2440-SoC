@@ -1,0 +1,115 @@
+			Embedded Linux Labs 
+ 			==========================
+Hardware:
+======== 
+FriendlyARM Mini2440, Pandaboard
+
+Task 01 							
+======
+Explore Buildroot framework and build cross tool chain for a specified target
+Explore u-boot framework and build bootloader images using the cross toolchain built for the specified target
+Explore Linux Kernel framework and port the kernel using the cross toolchain built for the specified target
+Explore BusyBox framework and generate rootfs using the cross toolchain built for the specified target
+Get an understanding of how hardware on an embedded board is described inside the kernel
+	=> old style using C code
+	=> using a special hardware description language using Device Tree syntax
+
+Specified target boards: mini2440, Pandaboard 
+
+Task 02 							
+======
+Deploy images generated so far onto target and boot
+	=>  flash u-boot image onto NAND
+=>  load Kernel image into Memory using tftp protocol (network interface)
+=>  mount rootfs using NFS protocol (network interface) and boot the target.
+
+Specified target boards: mini2440
+
+Task 03							
+======
+Explore initrd (initial ramdisk scheme) and boot the target with an initrd image
+
+Specified target boards: mini2440
+
+Task 04							
+======
+Explore initramfs (initial ram filesystem) and boot the target with an initramfs image
+
+Specified target boards: mini2440
+
+
+Task 05							
+======
+Deploy all images and rootfs onto target using sd card and boot
+Deploy all images except kernel and its corresponding dtb file (device tree binary) onto sd card,
+transfer kernel and dtb images using tftp protocol and mount rootfs using NFS protocol (network interface) and boot the target
+
+Specified target boards: pandaboard
+
+Task 06							
+======
+Explore different file systems (Jaffs, Yaffs, UBIFS) for flash
+Explore mtd (Memory Technology Device)
+Deploy images onto NAND flash using jffs file system and boot
+
+Specified target boards: mini2440
+
+Task 07							
+======
+Write a Virtual device tree node in the device tree source file of a target.
+Go through the datasheet to find the address map / memory map of the processor
+Pick up a reserved address and try to map that address to the virtual device
+Write a platform driver for that virtual device, if everything goes well then probe of the driver will be called
+
+Specified target boards: pandaboard
+
+Task 08							
+======
+By using a char driver interface, write a driver to access RTC chip
+Get an understanding on IOCTL interface and try to implement it in this driver
+
+Specified target boards: mini2440
+
+Task 09							
+======
+Accessing GPIO on a target: 
+=> Accessing LED's of a target using a platform driver interface (ioremap, and use ioread and 
+     iowrite) 
+=> Accessing LED's of a target using Linux GPIO subsystem and its API’s
+=> Accessing LED's of a target from userspace using Linux sysfs interface
+
+Specified target boards: mini2440
+
+
+Task 10							
+======
+Using char driver interface access EEPROM (which is I2C interfaced) on a target
+
+Specified target boards: mini2440
+
+
+
+Task 11							
+======
+Access buttons and write an interrupt handler such that the handler is invoked for every button press and release
+
+Repeat the above using Linux UIO subsystem
+
+Specified target boards: mini2440
+
+
+Task 12							
+======
+Write a Client Server application that should interact with led (connected via GPIO) while the file transfer is progress (interacting => blinking LED)
+
+Specified target boards: mini2440
+
+Task 13							
+======
+Network driver walkthrough, understanding the details of a platform network driver
+
+Specified target boards: mini2440
+
+
+
+
