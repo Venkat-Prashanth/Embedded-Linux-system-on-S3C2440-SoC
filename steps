@@ -1,8 +1,6 @@
 
 On Host Side:
 
-
-
 mkdir initrd
 
 cd initrd/
@@ -11,12 +9,9 @@ dd if=/dev/zero of=./initrd.img bs=1024 count=8192
 
 mkfs.ext3 initrd.img 8192
 
-
 mount -o loop initrd.img /mnt/
 
-
 cd /mnt
-
 
 ls
 
@@ -25,17 +20,15 @@ ls
 ls
 
  cd staging/
-
-
-root@msr:/home/madhu/staging# cp -rf bin/ /mnt/
-root@msr:/home/madhu/staging# cp -rf sbin/ /mnt/
-root@msr:/home/madhu/staging# cp -rf dev/ /mnt/
-root@msr:/home/madhu/staging# cp -rf etc/ /mnt/
-root@msr:/home/madhu/staging# cp -rf usr/ /mnt/
-root@msr:/home/madhu/staging# cd /mnt/
+ 
+root@msr:/home/staging# cp -rf bin/ /mnt/
+root@msr:/home/staging# cp -rf sbin/ /mnt/
+root@msr:/home/staging# cp -rf dev/ /mnt/
+root@msr:/home/staging# cp -rf etc/ /mnt/
+root@msr:/home/staging# cp -rf usr/ /mnt/
+root@msr:/home/staging# cd /mnt/
 root@msr:/mnt# ls
 bin  dev  etc  lost+found  sbin  usr
-
 
 root@msr:/mnt# mkdir root
 root@msr:/mnt# mkdir mnt
@@ -47,26 +40,15 @@ root@msr:/home/madhu/staging# umount /mnt
 root@msr:/home/madhu/staging# ls
 a.out  bin  dev  etc  gpio_map.ko  lib  linuxrc  mnt  proc  sbin  sys  usr
 
-
 ll
 
 cd initrd/
 
-
  ll
-
 
 cp initrd.img /tftpboot/
 
-
-
-
-
-
-
-
 on target side:
-
 
 tftpboot 0x31000000 uImage
 
@@ -77,4 +59,3 @@ setenv bootargs console=ttySAC0,115200 root=/dev/ram0 initrd=0x32000000,8M
 bootm 0x31000000
 
 ls
-
