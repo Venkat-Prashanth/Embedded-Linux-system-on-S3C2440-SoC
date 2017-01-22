@@ -1,0 +1,161 @@
+#For mini2440 target through build root
+
+#step1:- verify board support - apply the board specific config
+	make mini2440_defconfig
+
+#step2:- to check what config applied
+	make menuconfig
+
+	make source //will create a dl folder in build root 
+
+#if already dl folder is copied in build root then: initiate the cross tool chain build
+
+	make toolchain
+
+copy the path:
+	PATH=$PATH:/home/techveda/Desktop/embb_linux/buildroot-2015.02/output/host/usr/bin
+
+for compiling and building bootloader image:
+
+Step1: Verify the board support
+
+Step2: Apply board configuration
+
+	make mini2440_config
+
+Step3: Start compiling uboot source code for the board
+        make ARCH=arm CROSS_COMPILE=arm-linux-
+
+Cross compiling linux kernel
+
+1. Verify board support
+	make ARCH=arm help
+2. Apply board config
+	make ARCH=arm mini2440_defconfig
+3. Customize kernel configuration
+	make ARCH=arm menuconfig
+
+General Setup---->
+		Initial RAM f.s and RAM disk
+		config standard kernel features
+
+Device Drivers----->
+
+		Block devices
+			RAM block device support
+			MTD SUPPORT
+				Enable UBI
+        
+File systems-------->
+		Network F.S
+		Miscelleneous f.s 
+				jffs2 support
+		UBIFS support
+		YAFF2 file support
+    
+N/W options
+		TCP/IP
+		ip:
+		ip:dhcp
+		ip:bootp
+		ip:rarp
+Save and exit
+
+creating a kernel uImage
+ make ARCH=arm CROSS_COMPILE=arm-linux- uImage
+                 or
+ mkimage -A arm -O linux -T kernel -C none -a 0x30008000 -e 0x30008000 -n "linux_ARM920t" -d zImage uImage
+
+creating a new folder called staging:
+inside staging create subfolders /bin /dev /etc /lib /mnt /proc /sbin /sys /usr /usr/sbin /usr/bin /usr/lib /var
+
+extract busybox folder and type 'make menuconfig' in busybox- and select the required options
+and then type the following:
+
+make ARCH=arm CROSS_COMPILE=arm-linux- CONFIG_PREFIX=/home/techveda/Desktop/embb_linux/staging install
+
+populating /etc folder:
+
+create a new folder init.d in /etc/init.d 
+
+inside init.d:  vim rcS
+and type:
+-------------------------------
+#!/bin/sh
+mount -n -t proc null/proc
+mount -n -t sysfs null/sys
+mount -n -t ramfs null/dev
+mkdir -p /dev/shm
+/bin/mount -n -t tmpfs tmpfs/dev/shm
+echo"/sbin/mdev">/proc/sys/kernel/hotplug
+mdev -s
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+/sbin/ifconfig lo 127.0.0.1 up
+/sbin/ifconfig eth0 10.0.0.111 up
+/bin/hostname mini2440
+-----------------------------------
+inside /etc:vim passwd
+and type
+--------------------------------
+veda::0:0:root:/root:/bin/sh
+--------------------------------
+inside /etc:vim profile
+and type
+------------------------------
+PS1='[\u@\h:\W]\#'
+PATH=$PATH
+HOSTNAME='/bin/hostname'
+export HOSTNAME PS1 PATH
+-------------------------------
+moving intree kernel modules:
+#cd $(PATH/TO/LINUX-SRC)
+cd /home/techveda/Desktop/embb_linux/linux-3.18.6
+
+make ARCH=arm CROSS_COMPILE=arm-linux- INSTALL_MOD_PATH=/home/techveda/Desktop/embb_linux/staging modules
+
+make ARCH=arm CROSS_COMPILE=arm-linux- INSTALL_MOD_PATH=/home/techveda/Desktop/embb_linux/staging modules_install
+
+populating lib:
+
+cp -Rfp /home/techveda/Desktop/embb_linux/buildroot-2015.02/output/target/lib * /home/techveda/Desktop/embb_linux/staging/lib
+---------------------------------
+create device node for mini2440 in /staging/dev
+#mknod console c 5 1
+#mknod null c 1 3 
+#mknod ttySAC0 C 204 64
+-------------------------------
+
+Using QEMU:-
+
+$ mkdir emulator
+$ cd emulator
+$ git clone git://repo.or.cz/qemu/mini2440.git
+$ cd mini2440
+$ ./configure --target-list=arm-softmmu
+link rt library
+Edit Makefile.target in your qemu directory, find LIBS+=-lz, add LIBS+=-lrt beneath this line.
+$ make
+
+
+After complete the mini2440_start.sh need to be modify.
+Modify the mini2440_start.sh by removing line#29
+
+ #      -kernel /tftpboot/uImage
+   cmd="$base/../arm-softmmu/qemu-system-arm \
+          -M mini2440 $* \
+          -serial stdio \
+          -mtdblock "$name_nand" \
+          -show-cursor \
+          -usb -usbdevice keyboard -usbdevice mouse \
+          -net nic,vlan=0 \
+          -net tap,vlan=0,ifname=tap0 \
+          -monitor telnet::5555,server,nowait"
+ 
+    echo $cmd
+    $cmd
+
+copy your u-boot.bin into same directory of mini2440_start.sh
+
+Then try to start the emulator.
+./mini2440_start.sh
+---------------------------------------------------------
