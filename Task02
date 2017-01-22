@@ -1,0 +1,38 @@
+Creating a loopback device to create filesystem image:
+- Create a file on hard disk with enough space to hold the filesystem for target
+# dd if=/dev/zero of=$(path/to/initrd.img) bs=1024 count=4096
+-creates a file with name rootfs.img of size 4M
+- Disk file to be treated as a block device
+# losetup /dev/loop0 /home/target_images/initrd.img
+- Create a filesystem on loopback device
+# mkfs.ext3 /dev/loop0 4096
+- Mount loopback device
+# mount -t ext3 /dev/loop0 /mnt
+- Copy entire root filsystem structure to mount point (remove lib directory from rootfs)
+# cp -Rfp rootfs/* /mnt
+- Unmount loopback device
+# umount /mnt
+
+Porting using initrd: (Filesystem size should be <=16M)
+For this you must create a file system image with size less than 16MB
+➢ Transfer kernel image to target ram
+➢ tftpboot command in U-Boot is used to transfer images from host to target
+MINI2440 # tftpboot $<RAM_Addr> $<File_name>
+Example :
+ on mini2440
+➢ Copying kernel to ram_addr 0x31000000
+MINI2440 # tftpboot 0x31000000 uImage
+
+Copying rootfs.img to ram_addr 0x32000000
+MINI2440 # tftpboot 0x32000000 uImage
+
+Set bootargs environment variable to transfer boot arguments to the kernel.
+MINI2440 # setenv bootags console=<serial device>,<baud_rate> root=<rootfs_device>
+initrd=<ram_addr_rootfs.img>,<size_of_rootfs.img>
+MINI2440 # setenv bootags console=ttySAC0,115200 root=/dev/ram0
+initrd=0x32000000,4M
+➢ Booting kernel image
+MINI2440 # bootm $<RAM_Addr_kernel>
+Example :
+ on mini2440
+MINI2440 # bootm 0x3100000
